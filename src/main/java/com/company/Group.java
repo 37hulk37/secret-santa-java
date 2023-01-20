@@ -1,27 +1,29 @@
 package com.company;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 // Gson
 
 public class Group implements Serializable {
+    private String groupName;
     private int curUsers;
     final private int maxUsers;
     private boolean isClosed;
-    final private HashMap<Integer, String> users;
-    final private HashMap<Integer, String> admins;
+    final private ConcurrentHashMap<Integer, String> users;
+    final private ConcurrentHashMap<Integer, String> admins;
 
-    public Group(User user, int maxUsers) {
+    public Group(String groupName, User user, int maxUsers) {
+        this.groupName = groupName;
         this.curUsers = 1;
         this.maxUsers = maxUsers;
         this.isClosed = (curUsers == maxUsers);
-        this.users = new HashMap<>();
+        this.users = new ConcurrentHashMap<>();
         users.put(user.getId(), user.getName());
-        this.admins = new HashMap<>();
+        this.admins = new ConcurrentHashMap<>();
         admins.put(user.getId(), user.getName());
     }
 
-    public synchronized void add(User user) {
+    public void add(User user) {
         if ( !isClosed && curUsers < maxUsers) {
             users.put(user.getId(), user.getName());
             curUsers++;
@@ -46,7 +48,7 @@ public class Group implements Serializable {
         isClosed = closed;
     }
 
-    public synchronized boolean removeUser(User user) {
+    public boolean removeUser(User user) {
         boolean isRemoved = false;
         long id = user.getId();
         if (users.containsKey(id)) {
@@ -57,7 +59,7 @@ public class Group implements Serializable {
         return isRemoved;
     }
 
-    public synchronized boolean setAdmin(User user) {
+    public boolean setAdmin(User user) {
         boolean isSet = false;
         int id = user.getId();
         if ( !admins.containsKey(id) ) {
@@ -68,11 +70,11 @@ public class Group implements Serializable {
         return isSet;
     }
 
-    public synchronized HashMap<Integer, String> getUsers() {
+    public ConcurrentHashMap<Integer, String> getUsers() {
         return users;
     }
 
-    public synchronized HashMap<Integer, String> getAdmins() {
+    public ConcurrentHashMap<Integer, String> getAdmins() {
         return admins;
     }
 }
