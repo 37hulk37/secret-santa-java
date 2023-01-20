@@ -6,17 +6,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Group implements Serializable {
     private String groupName;
+    private int id;
     private int curUsers;
-    final private int maxUsers;
     private boolean isClosed;
     final private ConcurrentHashMap<Integer, String> users;
     final private ConcurrentHashMap<Integer, String> admins;
 
-    public Group(String groupName, User user, int maxUsers) {
+    public Group(String groupName, User user) {
         this.groupName = groupName;
         this.curUsers = 1;
-        this.maxUsers = maxUsers;
-        this.isClosed = (curUsers == maxUsers);
+        this.isClosed = false;
         this.users = new ConcurrentHashMap<>();
         users.put(user.getId(), user.getName());
         this.admins = new ConcurrentHashMap<>();
@@ -24,20 +23,12 @@ public class Group implements Serializable {
     }
 
     public void add(User user) {
-        if ( !isClosed && curUsers < maxUsers) {
-            users.put(user.getId(), user.getName());
-            curUsers++;
-
-            this.isClosed = (curUsers == maxUsers);
-        }
+        users.put(user.getId(), user.getName());
+        curUsers++;
     }
 
     public int getCurUsers() {
         return curUsers;
-    }
-
-    public int getMaxUsers() {
-        return maxUsers;
     }
 
     public boolean isClosed() {
@@ -68,6 +59,14 @@ public class Group implements Serializable {
         }
 
         return isSet;
+    }
+
+    public int getGroupId() {
+        return id;
+    }
+
+    public String getGroupName() {
+        return groupName;
     }
 
     public ConcurrentHashMap<Integer, String> getUsers() {

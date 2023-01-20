@@ -4,18 +4,23 @@ package com.company;
 
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
-    private HashSet<Group> groups;
-    private HashSet<User> users;
-    private Integer curId;
-    private Integer rb;
+    protected ConcurrentHashMap<Integer, String> groups;
+    protected ConcurrentHashMap<Integer, String> users;
+    private int curUserId;
+    private int rbUser;
+    private int curGroupId;
+    private int rbGroup;
 
-    public Server(Integer lb, Integer rb) {
-        this.groups = new HashSet<>();
-        this.users = new HashSet<>();
-        this.curId = lb;
-        this.rb = rb;
+    public Server(int lbUser, int rbUser, int lbGroup, int rbGroup) {
+        this.groups = new ConcurrentHashMap<>();
+        this.users = new ConcurrentHashMap<>();
+        this.curUserId = lbUser;
+        this.rbUser = rbUser;
+        this.curGroupId = lbGroup;
+        this.rbGroup = rbGroup;
     }
 
     private Integer getId(int[] ids) {
@@ -50,32 +55,41 @@ public class Server {
         return santas;
     }
 
-    public synchronized Integer generateId() {
-        if (curId < rb) {
-            curId++;
+    public synchronized Integer generateUserId() {
+        if (curUserId < rbUser) {
+            curUserId++;
         } else {
             System.out.println("Too much Users");
         }
-        return curId;
+        return curUserId;
+    }
+
+    public synchronized Integer generateGroupId() {
+        if (curGroupId < rbGroup) {
+            curGroupId++;
+        } else {
+            System.out.println("Too much Groups");
+        }
+        return curGroupId;
     }
 
     public synchronized boolean registerUser(User user) {
         boolean isRegistered = false;
 
         if ( !users.contains(user.getId()) ) {
-            users.add(user);
+            users.put(user.getId(), user.getName());
             isRegistered = true;
         }
 
         return isRegistered;
     }
 
-    public synchronized boolean registerGroup(String groupName, User user, int maxUsers) {
+    public synchronized boolean registerGroup(String groupName, User user) {
         boolean isRegistered = false;
 
         if ( !groups.contains(groupName) ) {
-            Group group = new Group(groupName, user, maxUsers);
-            groups.add(group);
+            Group group = new Group(groupName, user);
+            groups.put(group.getGroupId(), group.getGroupName());
         }
         return isRegistered;
     }
@@ -93,11 +107,11 @@ public class Server {
         return isDeleted;
     }
 
-    public HashSet<Group> getGroups() {
+    public ConcurrentHashMap<Integer, String> getListGroups() {
         return groups;
     }
 
-    public HashSet<User> getUsers() {
+    public ConcurrentHashMap<Integer, String> getListUsers() {
         return users;
     }
 }
