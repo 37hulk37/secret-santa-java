@@ -2,19 +2,18 @@ package com.company;
 
 // have a look to a documentation about Runnable & Threads & Tasks
 
-import com.company.Group;
-import com.company.User;
-
 import java.security.SecureRandom;
 import java.util.*;
 
 public class Server {
     private HashSet<Group> groups;
+    private HashSet<User> users;
     private Integer curId;
     private Integer rb;
 
     public Server(Integer lb, Integer rb) {
         this.groups = new HashSet<>();
+        this.users = new HashSet<>();
         this.curId = lb;
         this.rb = rb;
     }
@@ -24,7 +23,7 @@ public class Server {
         return ids[random.nextInt(ids.length)];
     }
 
-    public HashMap<Integer, Integer> setSantas(ArrayList<Integer> group) {
+    public synchronized HashMap<Integer, Integer> setSantas(ArrayList<Integer> group) {
         HashMap<Integer, Integer> santas = new HashMap<>();
         int[] ids = new int[group.size()];
 
@@ -60,6 +59,27 @@ public class Server {
         return curId;
     }
 
+    public synchronized boolean registerUser(User user) {
+        boolean isRegistered = false;
+
+        if ( !users.contains(user.getId()) ) {
+            users.add(user);
+            isRegistered = true;
+        }
+
+        return isRegistered;
+    }
+
+    public synchronized boolean registerGroup(String groupName, User user, int maxUsers) {
+        boolean isRegistered = false;
+
+        if ( !groups.contains(groupName) ) {
+            Group group = new Group(groupName, user, maxUsers);
+            groups.add(group);
+        }
+        return isRegistered;
+    }
+
     public synchronized boolean deleteGroup(Group group, User user) {
         boolean isDeleted = false;
 
@@ -73,12 +93,11 @@ public class Server {
         return isDeleted;
     }
 
-    //just starts server
-    public void go() {
-
+    public HashSet<Group> getGroups() {
+        return groups;
     }
 
-    public void handleClient() {
-
+    public HashSet<User> getUsers() {
+        return users;
     }
 }
