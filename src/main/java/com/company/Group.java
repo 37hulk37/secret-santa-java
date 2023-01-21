@@ -1,10 +1,23 @@
 package com.company;
 
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 // Gson
 
-public class Group implements Serializable {
+class NewGroup {
+    private String groupName;
+    private String username;
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+}
+
+public class Group {
     private String groupName;
     private int id;
     private int curUsers;

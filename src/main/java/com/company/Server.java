@@ -9,18 +9,17 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Server {
     protected ConcurrentHashMap<Integer, String> groups;
     protected ConcurrentHashMap<Integer, String> users;
-    private int curUserId;
-    private int rbUser;
-    private int curGroupId;
-    private int rbGroup;
 
-    public Server(int lbUser, int rbUser, int lbGroup, int rbGroup) {
+    //--- id for groups;
+    // change groupName and id as key and value
+    private int curId;
+    private int rb;
+
+    public Server(int lb, int rb) {
         this.groups = new ConcurrentHashMap<>();
         this.users = new ConcurrentHashMap<>();
-        this.curUserId = lbUser;
-        this.rbUser = rbUser;
-        this.curGroupId = lbGroup;
-        this.rbGroup = rbGroup;
+        this.curId = lb;
+        this.rb = rb;
     }
 
     private Integer getId(int[] ids) {
@@ -56,21 +55,12 @@ public class Server {
     }
 
     public synchronized Integer generateUserId() {
-        if (curUserId < rbUser) {
-            curUserId++;
+        if (curId < rb) {
+            curId++;
         } else {
             System.out.println("Too much Users");
         }
-        return curUserId;
-    }
-
-    public synchronized Integer generateGroupId() {
-        if (curGroupId < rbGroup) {
-            curGroupId++;
-        } else {
-            System.out.println("Too much Groups");
-        }
-        return curGroupId;
+        return curId;
     }
 
     public synchronized boolean registerUser(User user) {
@@ -84,7 +74,7 @@ public class Server {
         return isRegistered;
     }
 
-    public synchronized boolean registerGroup(String groupName, User user) {
+    public synchronized boolean createGroup(String groupName, User user) {
         boolean isRegistered = false;
 
         if ( !groups.contains(groupName) ) {
@@ -114,4 +104,8 @@ public class Server {
     public ConcurrentHashMap<Integer, String> getListUsers() {
         return users;
     }
+
+    public int getSizeGroupUsers() { return groups.size(); }
+
+    public int getSizeListUsers() { return users.size(); }
 }

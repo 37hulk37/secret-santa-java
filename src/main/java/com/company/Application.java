@@ -3,16 +3,14 @@ package com.company;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpServer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 
 public class Application extends Server {
     private HttpServer server;
 
-    public Application(int port, int lbUser, int rbUser, int lbGroup, int rbGroup) {
-        super(lbUser, rbUser, lbGroup, rbGroup);
+    public Application(int port, int lb, int rb) {
+        super(lb, rb);
         try {
             this.server = HttpServer.create(new InetSocketAddress(port), 0);
             server.setExecutor(null);
@@ -42,15 +40,14 @@ public class Application extends Server {
     public void registerUser() {
         server.createContext("/register-user", (request -> {
             if ("POST".equals(request.getRequestMethod())) {
+                Gson gson = new Gson();
                 InputStream in = request.getRequestBody();
-                String name = Integer.toString(in.read());
+                BufferedReader buffRead = new BufferedReader(new InputStreamReader(in));
+                NewUser newUser = gson.fromJson(buffRead, NewUser.class);
 
-                registerUser(new User(name, generateUserId()));
+                registerUser(new User(newUser.getName(), generateUserId()));
 
                 request.sendResponseHeaders(200, -1);
-                OutputStream out = request.getResponseBody();
-                out.flush();
-                out.close();
                 in.close();
             } else {
                 request.sendResponseHeaders(405, -1);
@@ -61,13 +58,15 @@ public class Application extends Server {
     public void getUsers() {
         server.createContext("/get-users", (request -> {
             if ("GET".equals(request.getRequestMethod())) {
-                String u = getListUsers().toString();
-                request.sendResponseHeaders(200, u.length());
+                Gson gson = new Gson();
                 OutputStream out = request.getResponseBody();
+                BufferedWriter buffWriter = new BufferedWriter(new OutputStreamWriter(out));
 
-                out.write(u.getBytes());
-                out.flush();
-                out.close();
+                request.sendResponseHeaders(200, 100*getSizeListUsers());
+                gson.toJson(getListUsers(), buffWriter);
+                buffWriter.close();
+                buffWriter.flush();
+
             } else {
                 request.sendResponseHeaders(405, -1);
             }
@@ -77,16 +76,60 @@ public class Application extends Server {
     public void createGroup() {
         server.createContext("/create-group", (request -> {
             if ("POST".equals(request.getRequestMethod())) {
+                Gson gson = new Gson();
                 InputStream in = request.getRequestBody();
-                String[] gr = Integer.toString(in.read()).split(",");
-//                User user = new User(users.get(gr[1]), gr[1]);
-//                Group group = new Group(gr[0], (), 6);
+                BufferedReader buffRead = new BufferedReader(new InputStreamReader(in));
 
-                System.out.println(gr);
+                NewGroup newGroup = gson.fromJson(buffRead, NewGroup.class);
+                User user = new User(newGroup.getUsername(), generateUserId());
+
+                createGroup(newGroup.getGroupName(), user);
+
+                request.sendResponseHeaders(200, -1);
+                in.close();
+            } else {
+                request.sendResponseHeaders(405, -1);
+            }
+        }));
+    }
+
+    public void getGroups() {
+        server.createContext("/get-groups", (request -> {
+            if ("GET".equals(request.getRequestMethod())) {
+                Gson gson = new Gson();
+                OutputStream out = request.getResponseBody();
+                BufferedWriter buffWriter = new BufferedWriter(new OutputStreamWriter(out));
+
+                System.out.println(getListGroups());
+                request.sendResponseHeaders(200, 100*getSizeGroupUsers());
+                gson.toJson(getListGroups(), buffWriter);
+
+                buffWriter.close();
+                buffWriter.flush();
 
             } else {
                 request.sendResponseHeaders(405, -1);
             }
         }));
     }
+
+//    public void closeGroup() {
+//        server.createContext("/close-group", (request -> {
+//            if ("PUT".equals(request.getRequestMethod())) {
+//                Gson gson = new Gson();
+//                InputStream in = request.getRequestBody();
+//                BufferedReader buffRead = new BufferedReader(new InputStreamReader(in));
+//
+//                NewGroup newGroup = gson.fromJson(buffRead, NewGroup.class);
+//                User user = new User(newGroup.getUsername(), generateUserId());
+//
+//
+//
+//                request.sendResponseHeaders(200, -1);
+//                in.close();
+//            } else {
+//                request.sendResponseHeaders(405, -1);
+//            }
+//        }));
+//    }
 }
