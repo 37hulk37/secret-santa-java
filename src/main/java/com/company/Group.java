@@ -22,21 +22,21 @@ public class Group {
     private int id;
     private int curUsers;
     private boolean isClosed;
-    final private ConcurrentHashMap<Integer, String> users;
-    final private ConcurrentHashMap<Integer, String> admins;
+    final private ConcurrentHashMap<Integer, User> users;
+    final private ConcurrentHashMap<Integer, User> admins;
 
     public Group(String groupName, User user) {
         this.groupName = groupName;
         this.curUsers = 1;
         this.isClosed = false;
         this.users = new ConcurrentHashMap<>();
-        users.put(user.getId(), user.getName());
+        users.put(user.getId(), user);
         this.admins = new ConcurrentHashMap<>();
-        admins.put(user.getId(), user.getName());
+        admins.put(user.getId(), user);
     }
 
     public void add(User user) {
-        users.put(user.getId(), user.getName());
+        users.put(user.getId(), user);
         curUsers++;
     }
 
@@ -67,7 +67,7 @@ public class Group {
         boolean isSet = false;
         int id = user.getId();
         if ( !admins.containsKey(id) ) {
-            admins.put(id, user.getName());
+            admins.put(id, user);
             isSet = true;
         }
 
@@ -82,11 +82,11 @@ public class Group {
         return groupName;
     }
 
-    public ConcurrentHashMap<Integer, String> getUsers() {
+    public ConcurrentHashMap<Integer, User> getUsers() {
         return users;
     }
 
-    public ConcurrentHashMap<Integer, String> getAdmins() {
+    public ConcurrentHashMap<Integer, User> getAdmins() {
         return admins;
     }
 }

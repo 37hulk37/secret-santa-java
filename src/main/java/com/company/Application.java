@@ -113,6 +113,8 @@ public class Application extends Server {
         }));
     }
 
+    // сделать проверку на четность кол-ва участников в группе, м б как-то можно без создания объекта группы, польхователя
+
 //    public void closeGroup() {
 //        server.createContext("/close-group", (request -> {
 //            if ("PUT".equals(request.getRequestMethod())) {

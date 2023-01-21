@@ -7,8 +7,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
-    protected ConcurrentHashMap<Integer, String> groups;
-    protected ConcurrentHashMap<Integer, String> users;
+    protected ConcurrentHashMap<Integer, Group> groups;
+    protected ConcurrentHashMap<Integer, User> users;
 
     //--- id for groups;
     // change groupName and id as key and value
@@ -67,7 +67,7 @@ public class Server {
         boolean isRegistered = false;
 
         if ( !users.contains(user.getId()) ) {
-            users.put(user.getId(), user.getName());
+            users.put(user.getId(), user);
             isRegistered = true;
         }
 
@@ -79,7 +79,7 @@ public class Server {
 
         if ( !groups.contains(groupName) ) {
             Group group = new Group(groupName, user);
-            groups.put(group.getGroupId(), group.getGroupName());
+            groups.put(group.getGroupId(), group);
         }
         return isRegistered;
     }
@@ -97,11 +97,11 @@ public class Server {
         return isDeleted;
     }
 
-    public ConcurrentHashMap<Integer, String> getListGroups() {
+    public ConcurrentHashMap<Integer, Group> getListGroups() {
         return groups;
     }
 
-    public ConcurrentHashMap<Integer, String> getListUsers() {
+    public ConcurrentHashMap<Integer, User> getListUsers() {
         return users;
     }
 
