@@ -96,12 +96,4 @@ public class Group {
     public ConcurrentHashMap<Integer, User> getAdmins() {
         return admins;
     }
-
-    @Override
-    public String toString() {
-        return "Group{" +
-                "groupName='" + groupName + '\'' +
-                ", isClosed=" + isClosed +
-                '}';
-    }
 }
