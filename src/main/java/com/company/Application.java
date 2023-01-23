@@ -1,6 +1,8 @@
 package com.company;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.*;
@@ -106,13 +108,13 @@ public class Application extends Server {
     public void getGroups() {
         server.createContext("/get-groups", (request -> {
             if ("GET".equals(request.getRequestMethod())) {
-                Gson gson = new Gson();
+                Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
                 OutputStream out = request.getResponseBody();
                 BufferedWriter buffWriter = new BufferedWriter(new OutputStreamWriter(out));
 
                 request.sendResponseHeaders(200, 1000*getSizeListGroups());
-                gson.toJson(getListGroups(), buffWriter);
-
+                String str = gson.toJson(getListGroups(), new TypeToken<ArrayList<Group>>() {}.getType());
+                buffWriter.write(str);
                 buffWriter.close();
                 buffWriter.flush();
             } else {
@@ -152,11 +154,13 @@ public class Application extends Server {
                 InputStream in = request.getRequestBody();
                 BufferedReader buffRead = new BufferedReader(new InputStreamReader(in));
 
-                ReqGroup newGroup = gson.fromJson(buffRead, ReqGroup.class);
+                ReqGroup reqGroup = gson.fromJson(buffRead, ReqGroup.class);
 
-                Group group = groups.get(newGroup.getGroupName());
+                System.out.println(reqGroup.getGroupName());
+
+                Group group = groups.get(reqGroup.getGroupName());
                 if (group.getCurUsers() % 2 == 0 &&
-                        group.getAdmins().containsKey(newGroup.getUserId())) {
+                        group.getAdmins().containsKey(reqGroup.getUserId())) {
 
                     group.setClosed(true);
                     setSantas(Collections.list(group.getUsers().keys()));

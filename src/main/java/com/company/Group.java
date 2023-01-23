@@ -18,9 +18,11 @@ class ReqGroup {
 }
 
 public class Group {
+    @Expose(serialize = true)
     private String groupName;
-    @Expose(serialize = false)
+    @Expose(serialize = true)
     private int id;
+    @Expose(serialize = true)
     private int curUsers;
     @Expose(serialize = false)
     private boolean isClosed;
