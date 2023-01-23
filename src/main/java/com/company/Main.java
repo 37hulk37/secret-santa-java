@@ -2,7 +2,8 @@ package com.company;
 
 public class Main {
     public static void main(String[] args) {
-        Application app = new Application(80, 0, 89, 0, 88);
+        Application app = new Application(80, Integer.parseInt(args[0]), Integer.parseInt(args[1]),
+                Integer.parseInt(args[2]), Integer.parseInt(args[3]));
 
         new Thread(() -> {
             app.registerUser();
