@@ -112,7 +112,7 @@ public class Application extends Server {
                 OutputStream out = request.getResponseBody();
                 BufferedWriter buffWriter = new BufferedWriter(new OutputStreamWriter(out));
 
-                request.sendResponseHeaders(200, 1000*getSizeListGroups());
+                request.sendResponseHeaders(200, 100*getSizeListGroups());
                 String str = gson.toJson(getListGroups(), new TypeToken<ArrayList<Group>>() {}.getType());
                 buffWriter.write(str);
                 buffWriter.close();
