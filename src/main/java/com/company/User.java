@@ -1,8 +1,6 @@
 package com.company;
-
 class NewUser {
     private String name;
-
     public String getName() {
         return name;
     }

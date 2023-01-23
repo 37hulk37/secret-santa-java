@@ -3,7 +3,6 @@ package com.company;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
 public class Server {
     protected ConcurrentHashMap<Integer, User> users;
     protected ConcurrentHashMap<String, Group> groups;
