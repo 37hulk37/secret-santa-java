@@ -49,6 +49,7 @@ public class Server {
                 }
 
                 santas.put(id, otherId);
+                santas.put(otherId, id);
             }
         }
     }

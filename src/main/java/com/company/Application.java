@@ -181,8 +181,6 @@ public class Application extends Server {
 
                 ReqGroup reqGroup = gson.fromJson(buffRead, ReqGroup.class);
 
-                System.out.println(reqGroup.getGroupName());
-
                 Group group = groups.get(reqGroup.getGroupName());
                 if (group.getCurUsers() % 2 == 0 &&
                         group.getAdmins().containsKey(reqGroup.getUserId())) {
@@ -203,6 +201,24 @@ public class Application extends Server {
     }
 
     public void getRecipient() {
+        server.createContext("/get-recipient", (request -> {
+            if ("GET".equals(request.getRequestMethod())) {
+                Gson gson = new Gson();
+                InputStream in = request.getRequestBody();
+                BufferedReader buffRead = new BufferedReader(new InputStreamReader(in));
 
+                ReqGroup reqGroup = gson.fromJson(buffRead, ReqGroup.class);
+
+                OutputStream out = request.getResponseBody();
+                BufferedWriter buffWriter = new BufferedWriter(new OutputStreamWriter(out));
+
+                gson.toJson(santas.get(reqGroup.getUserId()), buffWriter);
+                buffWriter.flush();
+                buffWriter.close();
+
+            } else {
+                request.sendResponseHeaders(405, -1);
+            }
+        }));
     }
 }
