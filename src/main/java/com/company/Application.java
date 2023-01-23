@@ -5,6 +5,10 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.*;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Application extends Server {
     private HttpServer server;
@@ -43,12 +47,21 @@ public class Application extends Server {
                 Gson gson = new Gson();
                 InputStream in = request.getRequestBody();
                 BufferedReader buffRead = new BufferedReader(new InputStreamReader(in));
+
                 NewUser newUser = gson.fromJson(buffRead, NewUser.class);
+                User user = new User(newUser.getName(), generateUserId());
+                registerUser(user);
 
-                registerUser(new User(newUser.getName(), generateUserId()));
+                OutputStream out = request.getResponseBody();
+                BufferedWriter buffWriter = new BufferedWriter(new OutputStreamWriter(out));
 
-                request.sendResponseHeaders(200, -1);
+                int id = user.getId();
+                request.sendResponseHeaders(201, Integer.toString(id).length());
+                gson.toJson(id, buffWriter);
+
                 in.close();
+                buffWriter.close();
+                buffWriter.flush();
             } else {
                 request.sendResponseHeaders(405, -1);
             }
@@ -66,7 +79,6 @@ public class Application extends Server {
                 gson.toJson(getListUsers(), buffWriter);
                 buffWriter.close();
                 buffWriter.flush();
-
             } else {
                 request.sendResponseHeaders(405, -1);
             }
@@ -81,11 +93,9 @@ public class Application extends Server {
                 BufferedReader buffRead = new BufferedReader(new InputStreamReader(in));
 
                 NewGroup newGroup = gson.fromJson(buffRead, NewGroup.class);
-                User user = new User(newGroup.getUsername(), generateUserId());
+                createGroup(newGroup.getGroupName(), users.get(newGroup.getUserId()));
 
-                createGroup(newGroup.getGroupName(), user);
-
-                request.sendResponseHeaders(200, -1);
+                request.sendResponseHeaders(201, -1);
                 in.close();
             } else {
                 request.sendResponseHeaders(405, -1);
@@ -100,38 +110,44 @@ public class Application extends Server {
                 OutputStream out = request.getResponseBody();
                 BufferedWriter buffWriter = new BufferedWriter(new OutputStreamWriter(out));
 
-                System.out.println(getListGroups());
-                request.sendResponseHeaders(200, 100*getSizeGroupUsers());
+                request.sendResponseHeaders(200, 1000*getSizeListGroups());
                 gson.toJson(getListGroups(), buffWriter);
 
                 buffWriter.close();
                 buffWriter.flush();
-
             } else {
                 request.sendResponseHeaders(405, -1);
             }
         }));
     }
 
-    // сделать проверку на четность кол-ва участников в группе, м б как-то можно без создания объекта группы, польхователя
+    public void setSantas() {
+        server.createContext("/start-secret-santa", (request -> {
+            if ("POST".equals(request.getRequestMethod())) {
+                Gson gson = new Gson();
+                InputStream in = request.getRequestBody();
+                BufferedReader buffRead = new BufferedReader(new InputStreamReader(in));
 
-//    public void closeGroup() {
-//        server.createContext("/close-group", (request -> {
-//            if ("PUT".equals(request.getRequestMethod())) {
-//                Gson gson = new Gson();
-//                InputStream in = request.getRequestBody();
-//                BufferedReader buffRead = new BufferedReader(new InputStreamReader(in));
-//
-//                NewGroup newGroup = gson.fromJson(buffRead, NewGroup.class);
-//                User user = new User(newGroup.getUsername(), generateUserId());
-//
-//
-//
-//                request.sendResponseHeaders(200, -1);
-//                in.close();
-//            } else {
-//                request.sendResponseHeaders(405, -1);
-//            }
-//        }));
-//    }
+                NewGroup newGroup = gson.fromJson(buffRead, NewGroup.class);
+
+                String groupName = newGroup.getGroupName();
+                if (groups.get(groupName).getCurUsers() % 2 == 0 &&
+                        groups.get(groupName).getAdmins().containsKey(newGroup.getUserId())) {
+
+                    setSantas(Collections.list(groups.get(groupName).getUsers().keys()));
+
+                    request.sendResponseHeaders(200, -1);
+                } else {
+                    request.sendResponseHeaders(406, -1);
+                }
+
+
+                in.close();
+            } else {
+                request.sendResponseHeaders(405, -1);
+            }
+        }));
+
+
+    }
 }

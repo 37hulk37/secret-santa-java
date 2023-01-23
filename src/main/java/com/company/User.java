@@ -1,7 +1,6 @@
 package com.company;
 
-import java.io.Serializable;
-//Gson
+import com.google.gson.annotations.Expose;
 
 class NewUser {
     private String name;
@@ -16,8 +15,9 @@ class NewUser {
 }
 
 public class User {
-    final private int id;
-    final private String name;
+    private int id;
+    @Expose
+    private String name;
 
     public User(String name, int id) {
         this.name = name;

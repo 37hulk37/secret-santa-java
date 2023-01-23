@@ -1,26 +1,28 @@
 package com.company;
 
-import java.util.ArrayList;
+import com.google.gson.annotations.Expose;
+
 import java.util.concurrent.ConcurrentHashMap;
-// Gson
 
 class NewGroup {
+    private int userId;
     private String groupName;
-    private String username;
 
     public String getGroupName() {
         return groupName;
     }
 
-    public String getUsername() {
-        return username;
+    public int getUserId() {
+        return userId;
     }
 }
 
 public class Group {
+    @Expose
     private String groupName;
     private int id;
     private int curUsers;
+    @Expose
     private boolean isClosed;
     final private ConcurrentHashMap<Integer, User> users;
     final private ConcurrentHashMap<Integer, User> admins;
@@ -88,5 +90,13 @@ public class Group {
 
     public ConcurrentHashMap<Integer, User> getAdmins() {
         return admins;
+    }
+
+    @Override
+    public String toString() {
+        return "Group{" +
+                "groupName='" + groupName + '\'' +
+                ", isClosed=" + isClosed +
+                '}';
     }
 }

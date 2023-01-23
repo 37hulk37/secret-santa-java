@@ -1,17 +1,14 @@
 package com.company;
 
-// have a look to a documentation about Runnable & Threads & Tasks
-
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
-    protected ConcurrentHashMap<Integer, Group> groups;
+    protected ConcurrentHashMap<String, Group> groups;
     protected ConcurrentHashMap<Integer, User> users;
+    protected ConcurrentHashMap<Integer, Integer> santas;
 
-    //--- id for groups;
-    // change groupName and id as key and value
     private int curId;
     private int rb;
 
@@ -27,8 +24,8 @@ public class Server {
         return ids[random.nextInt(ids.length)];
     }
 
-    public synchronized HashMap<Integer, Integer> setSantas(ArrayList<Integer> group) {
-        HashMap<Integer, Integer> santas = new HashMap<>();
+    public synchronized void setSantas(ArrayList<Integer> group) {
+        santas = new ConcurrentHashMap<>();
         int[] ids = new int[group.size()];
 
         int i = 0;
@@ -50,8 +47,6 @@ public class Server {
                 santas.put(id, otherId);
             }
         }
-
-        return santas;
     }
 
     public synchronized Integer generateUserId() {
@@ -79,7 +74,7 @@ public class Server {
 
         if ( !groups.contains(groupName) ) {
             Group group = new Group(groupName, user);
-            groups.put(group.getGroupId(), group);
+            groups.put(group.getGroupName(), group);
         }
         return isRegistered;
     }
@@ -97,15 +92,15 @@ public class Server {
         return isDeleted;
     }
 
-    public ConcurrentHashMap<Integer, Group> getListGroups() {
-        return groups;
+    public ArrayList<Group> getListGroups() {
+        return new ArrayList<>(groups.values());
     }
 
-    public ConcurrentHashMap<Integer, User> getListUsers() {
-        return users;
+    public ArrayList<User> getListUsers() {
+        return new ArrayList<>(users.values());
     }
 
-    public int getSizeGroupUsers() { return groups.size(); }
+    public int getSizeListGroups() { return groups.size(); }
 
     public int getSizeListUsers() { return users.size(); }
 }
