@@ -1,10 +1,8 @@
 package com.company;
 
-//проверка на чет кол-во челов в группе
-
 public class Main {
     public static void main(String[] args) {
-        Application app = new Application(80, 0, 89);
+        Application app = new Application(80, 0, 89, 0, 88);
 
         new Thread(() -> {
             app.registerUser();
@@ -14,7 +12,13 @@ public class Main {
         new Thread(() -> {
             app.createGroup();
             app.getGroups();
+
+            //app.req();
         }).start();
+
+        new Thread(() -> {
+            app.startSecretSanta();
+        });
     }
 }
 

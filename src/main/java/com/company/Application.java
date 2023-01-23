@@ -13,8 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Application extends Server {
     private HttpServer server;
 
-    public Application(int port, int lb, int rb) {
-        super(lb, rb);
+    public Application(int port, int userLb, int userRb, int groupLb, int groupRb) {
+        super(userLb, userRb, groupLb, groupRb);
         try {
             this.server = HttpServer.create(new InetSocketAddress(port), 0);
             server.setExecutor(null);
@@ -92,8 +92,8 @@ public class Application extends Server {
                 InputStream in = request.getRequestBody();
                 BufferedReader buffRead = new BufferedReader(new InputStreamReader(in));
 
-                NewGroup newGroup = gson.fromJson(buffRead, NewGroup.class);
-                createGroup(newGroup.getGroupName(), users.get(newGroup.getUserId()));
+                ReqGroup reqGroup = gson.fromJson(buffRead, ReqGroup.class);
+                createGroup(reqGroup.getGroupName(), users.get(reqGroup.getUserId()));
 
                 request.sendResponseHeaders(201, -1);
                 in.close();
@@ -121,26 +121,50 @@ public class Application extends Server {
         }));
     }
 
-    public void setSantas() {
+    public void addToGroup() {
+        server.createContext("/add-to-group", (request -> {
+            if ("POST".equals(request.getRequestMethod())) {
+                Gson gson = new Gson();
+                InputStream in = request.getRequestBody();
+                BufferedReader buffRead = new BufferedReader(new InputStreamReader(in));
+
+                ReqGroup reqGroup = gson.fromJson(buffRead, ReqGroup.class);
+                Group group = groups.get(reqGroup.getGroupName());
+                if ( !group.isClosed() ) {
+                    group.add(users.get(reqGroup.getUserId()));
+                    request.sendResponseHeaders(201, -1);
+                } else {
+                    request.sendResponseHeaders(406, -1);
+                }
+
+
+                in.close();
+            } else {
+                request.sendResponseHeaders(405, -1);
+            }
+        }));
+    }
+
+    public void startSecretSanta() {
         server.createContext("/start-secret-santa", (request -> {
             if ("POST".equals(request.getRequestMethod())) {
                 Gson gson = new Gson();
                 InputStream in = request.getRequestBody();
                 BufferedReader buffRead = new BufferedReader(new InputStreamReader(in));
 
-                NewGroup newGroup = gson.fromJson(buffRead, NewGroup.class);
+                ReqGroup newGroup = gson.fromJson(buffRead, ReqGroup.class);
 
-                String groupName = newGroup.getGroupName();
-                if (groups.get(groupName).getCurUsers() % 2 == 0 &&
-                        groups.get(groupName).getAdmins().containsKey(newGroup.getUserId())) {
+                Group group = groups.get(newGroup.getGroupName());
+                if (group.getCurUsers() % 2 == 0 &&
+                        group.getAdmins().containsKey(newGroup.getUserId())) {
 
-                    setSantas(Collections.list(groups.get(groupName).getUsers().keys()));
+                    group.setClosed(true);
+                    setSantas(Collections.list(group.getUsers().keys()));
 
                     request.sendResponseHeaders(200, -1);
                 } else {
                     request.sendResponseHeaders(406, -1);
                 }
-
 
                 in.close();
             } else {

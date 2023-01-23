@@ -1,13 +1,7 @@
 package com.company;
 
-import com.google.gson.annotations.Expose;
-
 class NewUser {
     private String name;
-
-    public NewUser(String name) {
-        this.name = name;
-    }
 
     public String getName() {
         return name;
@@ -16,7 +10,6 @@ class NewUser {
 
 public class User {
     private int id;
-    @Expose
     private String name;
 
     public User(String name, int id) {

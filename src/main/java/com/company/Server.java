@@ -5,18 +5,22 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
-    protected ConcurrentHashMap<String, Group> groups;
     protected ConcurrentHashMap<Integer, User> users;
+    protected ConcurrentHashMap<String, Group> groups;
     protected ConcurrentHashMap<Integer, Integer> santas;
 
-    private int curId;
-    private int rb;
+    private int curUserId;
+    private int userRb;
+    private int curGroupId;
+    private int groupRb;
 
-    public Server(int lb, int rb) {
+    public Server(int userLb, int userRb, int groupLb, int groupRb) {
         this.groups = new ConcurrentHashMap<>();
         this.users = new ConcurrentHashMap<>();
-        this.curId = lb;
-        this.rb = rb;
+        this.curUserId = userLb;
+        this.userRb = userRb;
+        this.curGroupId = groupLb;
+        this.groupRb = groupRb;
     }
 
     private Integer getId(int[] ids) {
@@ -50,12 +54,12 @@ public class Server {
     }
 
     public synchronized Integer generateUserId() {
-        if (curId < rb) {
-            curId++;
+        if (curUserId < userRb) {
+            curUserId++;
         } else {
             System.out.println("Too much Users");
         }
-        return curId;
+        return curUserId;
     }
 
     public synchronized boolean registerUser(User user) {

@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-class NewGroup {
+class ReqGroup {
     private int userId;
     private String groupName;
 
@@ -18,13 +18,15 @@ class NewGroup {
 }
 
 public class Group {
-    @Expose
     private String groupName;
+    @Expose(serialize = false)
     private int id;
     private int curUsers;
-    @Expose
+    @Expose(serialize = false)
     private boolean isClosed;
+    @Expose(serialize = false)
     final private ConcurrentHashMap<Integer, User> users;
+    @Expose(serialize = false)
     final private ConcurrentHashMap<Integer, User> admins;
 
     public Group(String groupName, User user) {
