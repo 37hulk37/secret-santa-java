@@ -60,9 +60,10 @@ public class Group {
 
     public boolean removeUser(User user) {
         boolean isRemoved = false;
-        long id = user.getId();
-        if (users.containsKey(id)) {
+        int id = user.getId();
+        if (users.contains(id) || (admins.contains(id) && admins.size() > 1)) {
             users.remove(id);
+            curUsers--;
             isRemoved = true;
         }
 

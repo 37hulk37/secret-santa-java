@@ -147,6 +147,31 @@ public class Application extends Server {
         }));
     }
 
+    public void leaveGroup() {
+        server.createContext("/leave-group", (request -> {
+            if ("POST".equals(request.getRequestMethod())) {
+                Gson gson = new Gson();
+                InputStream in = request.getRequestBody();
+                BufferedReader buffRead = new BufferedReader(new InputStreamReader(in));
+
+                ReqGroup reqGroup = gson.fromJson(buffRead, ReqGroup.class);
+                Group group = groups.get(reqGroup.getGroupName());
+
+                boolean isRemoved = false;
+                if ( !group.isClosed() ) {
+                    isRemoved = group.removeUser(users.get(reqGroup.getUserId()));
+                }
+                if ( !isRemoved || group.isClosed()){
+                    request.sendResponseHeaders(406, -1);
+                }
+
+                in.close();
+            } else {
+                request.sendResponseHeaders(405, -1);
+            }
+        }));
+    }
+
     public void startSecretSanta() {
         server.createContext("/start-secret-santa", (request -> {
             if ("POST".equals(request.getRequestMethod())) {
@@ -175,7 +200,9 @@ public class Application extends Server {
                 request.sendResponseHeaders(405, -1);
             }
         }));
+    }
 
+    public void getRecipient() {
 
     }
 }

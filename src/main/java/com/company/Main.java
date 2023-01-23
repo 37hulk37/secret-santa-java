@@ -12,13 +12,14 @@ public class Main {
         new Thread(() -> {
             app.createGroup();
             app.getGroups();
-
-            //app.req();
+            app.addToGroup();
+            app.leaveGroup();
         }).start();
 
         new Thread(() -> {
             app.startSecretSanta();
-        });
+            app.getRecipient();
+        }).start();
     }
 }
 
