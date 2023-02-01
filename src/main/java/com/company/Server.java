@@ -29,28 +29,10 @@ public class Server {
 
     public synchronized void setSantas(ArrayList<Integer> group) {
         santas = new ConcurrentHashMap<>();
-        int[] ids = new int[group.size()];
 
-        int i = 0;
-        for (Integer id: group) {
-            ids[i] = id;
-            i++;
-        }
+        Random r1 = new Random();
 
-        Iterator<Integer> it = group.iterator();
-        while (it.hasNext() && santas.size() < group.size() / 2) {
-            int id = it.next();
-            if ( !santas.containsKey(id) || !santas.containsValue(id)) {
-                int otherId = getId(ids);
-
-                while (id == otherId || santas.containsKey(otherId) || santas.containsValue(otherId)) {
-                    otherId = getId(ids);
-                }
-
-                santas.put(id, otherId);
-                santas.put(otherId, id);
-            }
-        }
+        Collections.shuffle(group);
     }
 
     public synchronized Integer generateUserId() {
