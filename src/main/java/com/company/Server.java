@@ -1,5 +1,6 @@
 package com.company;
 
+import javax.swing.text.html.HTMLDocument;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,9 +31,12 @@ public class Server {
     public synchronized void setSantas(ArrayList<Integer> group) {
         santas = new ConcurrentHashMap<>();
 
-        Random r1 = new Random();
-
         Collections.shuffle(group);
+
+        for (int i = 0; i < group.size() / 2; i++) {
+            santas.put(group.get(i), group.get(i+1));
+            santas.put(group.get(i+1), group.get(i));
+        }
     }
 
     public synchronized Integer generateUserId() {
